@@ -17,9 +17,9 @@ class Testcase:
 
     @staticmethod
     def generate_data(
-        num_groups, num_tables, max_seats, max_duration, max_wait, max_tables
+        number_people, num_groups, num_tables, max_seats, max_duration, max_wait, max_tables
     ):
-        Ng = np.random.randint(1, 8, num_groups)
+        Ng = np.random.randint(1, number_people, num_groups)
         Md = np.random.randint(2, max_seats + 1, num_tables)
         Cij_upper = np.triu(np.random.randint(0, 2, (num_tables, num_tables)))
         Cij = Cij_upper + Cij_upper.T - np.diag(Cij_upper.diagonal())
@@ -75,12 +75,13 @@ class Testcase:
 if __name__ == "__main__":
     # Generate data and save to CSV
     testcase = Testcase.generate_data(
-        num_groups=4,
-        num_tables=5,
-        max_seats=10,
+        number_people= 8,
+        num_groups=5,
+        num_tables=4,
+        max_seats=8,
         max_duration=10,
-        max_wait=20,
-        max_tables=5,
+        max_wait=100,
+        max_tables=2,
     )
     testcase.save_to_csv("testcase_data.csv")
 

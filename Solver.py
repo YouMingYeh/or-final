@@ -1,8 +1,9 @@
 import gurobipy as gp
 from gurobipy import GRB
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 from Testcase import Testcase
-
 
 class Solver:
     def __init__(self):
@@ -52,117 +53,53 @@ class Solver:
         self.model.setObjective(wait_time - table_minimization, GRB.MINIMIZE)
 
         # Constraints
-        # sum_d M[d] * b[g, d] >= N[g]
         self.model.addConstrs(
-            (
-                gp.quicksum(M[d] * b[g, d] for d in range(num_tables)) >= N[g]
-                for g in range(num_groups)
-            ),
-            name="seating_capacity",
-        )
-        # b[g, i] + b[g, j] <= C[i, j] + 1
-        self.model.addConstrs(
-            (
-                b[g, i] + b[g, j] <= C[i, j] + 1
-                for g in range(num_groups)
-                for i in range(num_tables)
-                for j in range(num_tables)
-            ),
-            name="table_combination",
-        )
-        # a[g, d, t] <= b[g, d]
-        self.model.addConstrs(
-            (
-                a[g, d, t] <= b[g, d]
-                for g in range(num_groups)
-                for d in range(num_tables)
-                for t in range(T_star)
-            ),
-            name="assignment_match",
-        )
-        # sum_t' a[g, d, t'] >= P[g] * b[g, d]
-        self.model.addConstrs(
-            (
-                gp.quicksum(a[g, d, t] for t in range(T_star)) == P[g] * b[g, d]
-                for g in range(num_groups)
-                for d in range(num_tables)
-            ),
-            name="meal_duration",
-        )
-        # sum_t' a[g, d, t'] >= P[g] * x[g, t]
-        self.model.addConstrs(
-            (
-                gp.quicksum(a[g, d, t2] for t2 in range(t, t + P[g]))
-                + 9999 * (1 - b[g, d])
-                >= P[g] * x[g, t]
-                for g in range(num_groups)
-                for d in range(num_tables)
-                for t in range(T_star - P[g] + 1)
-            ),
-            name="continuous_assignment",
-        )
-        # sum_d b[g, d] <= H[g]
-        self.model.addConstrs(
-            (
-                gp.quicksum(b[g, d] for d in range(num_tables)) <= H[g]
-                for g in range(num_groups)
-            ),
-            name="max_tables",
-        )
-        # 2 * x[g, t] <= a[g, d, t] - a[g, d, t - 1] + 1
-        self.model.addConstrs(
-            (
-                x[g, 0] <= a[g, d, 0] + (1 - b[g, d])
-                for g in range(num_groups)
-                for d in range(num_tables)
-            ),
-            name="start_time_0",
+            (gp.quicksum(M[d] * b[g, d] for d in range(num_tables)) >= N[g] for g in range(num_groups)),
+            name="seating_capacity"
         )
         self.model.addConstrs(
-            (
-                2 * x[g, t] <= a[g, d, t] - a[g, d, t - 1] + 1 + 2 * (1 - b[g, d])
-                for g in range(num_groups)
-                for d in range(num_tables)
-                for t in range(1, T_star)
-            ),
-            name="start_time",
+            (b[g, i] + b[g, j] <= C[i, j] + 1 for g in range(num_groups) for i in range(num_tables) for j in range(num_tables)),
+            name="table_combination"
         )
-        # x[g, t] <= 0
         self.model.addConstrs(
-            (
-                x[g, t] <= 0
-                for g in range(num_groups)
-                for t in range(max(0, U[g] - S[g] + 1), T_star)
-            ),
-            name="max_wait",
+            (a[g, d, t] <= b[g, d] for g in range(num_groups) for d in range(num_tables) for t in range(T_star)),
+            name="assignment_match"
         )
-        # sum_g a[g, d, t] <= 1
         self.model.addConstrs(
-            (
-                gp.quicksum(a[g, d, t] for g in range(num_groups)) <= 1
-                for t in range(T_star)
-                for d in range(num_tables)
-            ),
-            name="single_assignment",
+            (gp.quicksum(a[g, d, t] for t in range(T_star)) == P[g] * b[g, d] for g in range(num_groups) for d in range(num_tables)),
+            name="meal_duration"
         )
-        # sum_t x[g, t] = 1
         self.model.addConstrs(
-            (
-                gp.quicksum(x[g, t] for t in range(T_star)) == 1
-                for g in range(num_groups)
-            ),
-            name="single_start",
+            (gp.quicksum(a[g, d, t2] for t2 in range(t, t + P[g])) + 9999 * (1 - b[g, d]) >= P[g] * x[g, t] for g in range(num_groups) for d in range(num_tables) for t in range(T_star - P[g] + 1)),
+            name="continuous_assignment"
         )
-        # a[g, d, t] <= 0 if O[d, t] = 1
         self.model.addConstrs(
-            (
-                a[g, d, t] <= 0
-                for g in range(num_groups)
-                for d in range(num_tables)
-                for t in range(len(O[d]))
-                if O[d, t] == 1
-            ),
-            name="table_unavailability",
+            (gp.quicksum(b[g, d] for d in range(num_tables)) <= H[g] for g in range(num_groups)),
+            name="max_tables"
+        )
+        self.model.addConstrs(
+            (x[g, 0] <= a[g, d, 0] + (1 - b[g, d]) for g in range(num_groups) for d in range(num_tables)),
+            name="start_time_0"
+        )
+        self.model.addConstrs(
+            (2 * x[g, t] <= a[g, d, t] - a[g, d, t - 1] + 1 + 2 * (1 - b[g, d]) for g in range(num_groups) for d in range(num_tables) for t in range(1, T_star)),
+            name="start_time"
+        )
+        self.model.addConstrs(
+            (x[g, t] <= 0 for g in range(num_groups) for t in range(max(0, U[g] - S[g] + 1), T_star)),
+            name="max_wait"
+        )
+        self.model.addConstrs(
+            (gp.quicksum(a[g, d, t] for g in range(num_groups)) <= 1 for t in range(T_star) for d in range(num_tables)),
+            name="single_assignment"
+        )
+        self.model.addConstrs(
+            (gp.quicksum(x[g, t] for t in range(T_star)) == 1 for g in range(num_groups)),
+            name="single_start"
+        )
+        self.model.addConstrs(
+            (a[g, d, t] <= 0 for g in range(num_groups) for d in range(num_tables) for t in range(len(O[d])) if O[d, t] == 1),
+            name="table_unavailability"
         )
 
         # Optimize the model
@@ -181,7 +118,6 @@ class Solver:
             print("No optimal solution found")
 
     def to_solution(self, testcase):
-        # Extract data from testcase
         N = testcase.Ng
         M = testcase.Md
         C = testcase.Cij
@@ -190,6 +126,7 @@ class Solver:
         S = testcase.Sg
         R = testcase.Rg
         H = testcase.Hg
+        O = testcase.Odt
         alpha = testcase.alpha
 
         num_groups = int(len(N))
@@ -223,7 +160,36 @@ class Solver:
             return solution
         else:
             return None
+    
+    def draw_solution(self, solution):
+        x = solution["x"]
+        a = solution["a"]
+        b = solution["b"]
+        num_groups = len(x)
+        num_tables = len(a[0])
+        T_star = len(x[0])
 
+        fig, gnt = plt.subplots()
+
+        gnt.set_xlabel('Time')
+        gnt.set_ylabel('Tables')
+
+        gnt.set_xticks(np.arange(0, T_star, step=1))
+        gnt.set_yticks(np.arange(0, num_tables, step=1))
+        gnt.set_xticklabels(np.arange(0, T_star, step=1))
+        gnt.set_yticklabels(np.arange(0, num_tables, step=1))
+
+        gnt.grid(True)
+
+        colors = plt.cm.get_cmap('tab20', num_groups)
+
+        for g in range(num_groups):
+            for d in range(num_tables):
+                for t in range(T_star):
+                    if a[g, d, t] > 0.5:
+                        gnt.broken_barh([(t, 1)], (d - 0.4, 0.8), facecolors=colors(g))
+
+        plt.show()
 
 if __name__ == "__main__":
     # Load data from CSV and create Testcase object
@@ -234,7 +200,7 @@ if __name__ == "__main__":
     solver.solve(testcase)
     solver.report()
     solution = solver.to_solution(testcase)
-    # if solution:
-    #     print("Solution:", solution)
-    # else:
-    #     print("No solution found")
+    if solution:
+        solver.draw_solution(solution)
+    else:
+        print("No solution found")

@@ -148,7 +148,22 @@ class Solver:
         else:
             print("No optimal solution found")
 
-    def to_solution(self):
+    def to_solution(self, testcase):
+       # Extract data from testcase
+        N = testcase.Ng
+        M = testcase.Md
+        C = testcase.Cij
+        P = testcase.Pg
+        U = testcase.Ug
+        S = testcase.Sg
+        R = testcase.Rg
+        H = testcase.Hg
+        alpha = testcase.alpha
+
+        num_groups = int(len(N))
+        num_tables = int(len(M))
+        T_star = int(max(U) + max(P)) * num_groups
+        
         if self.model.status == GRB.OPTIMAL:
             solution = {
                 "a": np.array(
@@ -156,29 +171,29 @@ class Solver:
                         [
                             [
                                 self.solution["a"][g, d, t].x
-                                for t in range(self.solution["a"][g, d, t].size())
+                                for t in range(T_star)
                             ]
-                            for d in range(len(self.solution["a"][g]))
+                            for d in range(num_tables)
                         ]
-                        for g in range(len(self.solution["a"]))
+                        for g in range(num_groups)
                     ]
                 ),
                 "b": np.array(
                     [
                         [
                             self.solution["b"][g, d].x
-                            for d in range(len(self.solution["b"][g]))
+                            for d in range(num_tables)
                         ]
-                        for g in range(len(self.solution["b"]))
+                        for g in range(num_groups)
                     ]
                 ),
                 "x": np.array(
                     [
                         [
                             self.solution["x"][g, t].x
-                            for t in range(len(self.solution["x"][g]))
+                            for t in range(T_star)
                         ]
-                        for g in range(len(self.solution["x"]))
+                        for g in range(num_groups)
                     ]
                 ),
             }
@@ -195,7 +210,7 @@ if __name__ == "__main__":
     solver = Solver()
     solver.solve(testcase)
     solver.report()
-    solution = solver.to_solution()
+    solution = solver.to_solution(testcase)
     if solution:
         print("Solution:", solution)
     else:

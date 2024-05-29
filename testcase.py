@@ -16,9 +16,13 @@ class Testcase:
 
     @staticmethod
     def generate_data(num_groups, num_tables, max_seats, max_duration, max_wait, max_tables):
-        Ng = np.random.randint(1, 11, num_groups)
+        Ng = np.random.randint(1, 8, num_groups)
         Md = np.random.randint(2, max_seats + 1, num_tables)
         Cij = np.random.randint(0, 2, (num_tables, num_tables))
+        # Cij = Cji
+        for i in range(num_tables):
+            for j in range(i, num_tables):
+                Cij[i, j] = Cij[j, i]
         Pg = np.random.randint(1, max_duration + 1, num_groups)
         Ug = np.random.randint(1, max_wait + 1, num_groups)
         Sg = np.random.randint(0, max_wait + 1, num_groups)
@@ -60,13 +64,13 @@ class Testcase:
         Sg = data["Sg"].astype(int)
         Rg = data["Rg"].astype(int)
         Hg = data["Hg"].astype(int)
-        alpha = int(data["alpha"][0])
+        alpha = round(data["alpha"][0],2)
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, alpha)
 
 if __name__ == "__main__":
     # Generate data and save to CSV
-    testcase = Testcase.generate_data(num_groups=10, num_tables=5, max_seats=6, max_duration=10, max_wait=5, max_tables=3)
+    testcase = Testcase.generate_data(num_groups=2, num_tables=3, max_seats=4, max_duration=10, max_wait=5, max_tables=2)
     testcase.save_to_csv("testcase_data.csv")
 
     # Load data from CSV and create Testcase object

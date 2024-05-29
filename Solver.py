@@ -109,14 +109,14 @@ class Solver:
             name="max_tables",
         )
         # 2 * x[g, t] <= a[g, d, t] - a[g, d, t - 1] + 1
-        # self.model.addConstrs(
-        #     (
-        #         x[g, 0] <= a[g, d, 0] + (1 - b[g, d])
-        #         for g in range(num_groups)
-        #         for d in range(num_tables)
-        #     ),
-        #     name="start_time_0",
-        # )
+        self.model.addConstrs(
+            (
+                x[g, 0] <= a[g, d, 0] + (1 - b[g, d])
+                for g in range(num_groups)
+                for d in range(num_tables)
+            ),
+            name="start_time_0",
+        )
         self.model.addConstrs(
             (
                 2 * x[g, t] <= a[g, d, t] - a[g, d, t - 1] + 1 + 2 * (1 - b[g, d])

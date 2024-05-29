@@ -1,7 +1,7 @@
 import gurobipy as gp
 from gurobipy import GRB
 import numpy as np
-from Testcase import Testcase
+from testcase import Testcase
 
 
 class Solver:

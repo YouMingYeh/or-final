@@ -22,12 +22,14 @@ class Testcase:
         # Cij = Cji
         for i in range(num_tables):
             for j in range(i, num_tables):
-                Cij[i, j] = Cij[j, i]
+                # Cij[i, j] = Cij[j, i]
+                Cij[i, j] = 1
+                
         Pg = np.random.randint(1, max_duration + 1, num_groups)
-        Ug = np.random.randint(1, max_wait + 1, num_groups)
-        Sg = np.random.randint(0, max_wait + 1, num_groups)
-        Rg = np.random.randint(0, 2, num_groups)
-        Hg = np.random.randint(1, max_tables + 1, num_groups)
+        Ug = np.random.randint(max_duration, max_wait + 1, num_groups)
+        Sg = np.random.randint(0, max_wait/2 + 1, num_groups)
+        Rg = np.random.randint(0, 1, num_groups)
+        Hg = np.random.randint(max_tables, max_tables + 1, num_groups)
         alpha = random.uniform(0, 1)
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, alpha)
@@ -70,18 +72,18 @@ class Testcase:
 
 if __name__ == "__main__":
     # Generate data and save to CSV
-    testcase = Testcase.generate_data(num_groups=2, num_tables=3, max_seats=4, max_duration=10, max_wait=5, max_tables=2)
+    testcase = Testcase.generate_data(num_groups=2, num_tables=2, max_seats=10, max_duration=10, max_wait=20, max_tables=2)
     testcase.save_to_csv("testcase_data.csv")
 
     # Load data from CSV and create Testcase object
     loaded_testcase = Testcase.from_csv("testcase_data.csv")
     print("Loaded Testcase:")
-    print("Ng:", loaded_testcase.Ng)
-    print("Md:", loaded_testcase.Md)
-    print("Cij:", loaded_testcase.Cij)
-    print("Pg:", loaded_testcase.Pg)
-    print("Ug:", loaded_testcase.Ug)
-    print("Sg:", loaded_testcase.Sg)
-    print("Rg:", loaded_testcase.Rg)
-    print("Hg:", loaded_testcase.Hg)
+    print("Ng - Number of customer in group g:", loaded_testcase.Ng)
+    print("Md - Number of seats of table d:", loaded_testcase.Md)
+    print("Cij - Binary variable, 1 if tables i and j can be combined for larger groups, 0 otherwise:", loaded_testcase.Cij)
+    print("Pg - Meal duration for group g, measured in time periods:", loaded_testcase.Pg)
+    print("Ug - Maximum waiting time allowed for group g before seating, measured in time periods.:", loaded_testcase.Ug)
+    print("Sg - Number of time periods group g has already waited:", loaded_testcase.Sg)
+    print("Rg - Binary variable indicates if group g has a reservation:", loaded_testcase.Rg)
+    print("Hg - Maximum number of tables group g is willing to be assigned to:", loaded_testcase.Hg)
     print("alpha:", loaded_testcase.alpha)

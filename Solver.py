@@ -51,6 +51,7 @@ class Solver:
         self.model.setObjective(wait_time - table_minimization, GRB.MINIMIZE)
 
         # Constraints
+        # sum_d M[d] * b[g, d] >= N[g]
         self.model.addConstrs(
             (
                 gp.quicksum(M[d] * b[g, d] for d in range(num_tables)) >= N[g]
@@ -58,6 +59,7 @@ class Solver:
             ),
             name="seating_capacity",
         )
+        # b[g, i] + b[g, j] <= C[i, j] + 1
         self.model.addConstrs(
             (
                 b[g, i] + b[g, j] <= C[i, j] + 1
@@ -67,6 +69,7 @@ class Solver:
             ),
             name="table_combination",
         )
+        # a[g, d, t] <= b[g, d]
         self.model.addConstrs(
             (
                 a[g, d, t] <= b[g, d]
@@ -76,39 +79,54 @@ class Solver:
             ),
             name="assignment_match",
         )
+        # sum_t' a[g, d, t'] >= P[g] * b[g, d]
         self.model.addConstrs(
             (
-                gp.quicksum(a[g, d, t] for t in range(T_star)) >= P[g] * b[g, d]
+                gp.quicksum(a[g, d, t] for t in range(T_star)) == P[g] * b[g, d]
                 for g in range(num_groups)
                 for d in range(num_tables)
             ),
             name="meal_duration",
         )
+        # sum_t' a[g, d, t'] >= P[g] * x[g, t]
         self.model.addConstrs(
             (
-                gp.quicksum(a[g, d, t2] for t2 in range(t, t + P[g])) >= P[g] * x[g, t]
+                gp.quicksum(a[g, d, t2] for t2 in range(t, t + P[g]))
+                + 9999 * (1 - b[g, d])
+                >= P[g] * x[g, t]
                 for g in range(num_groups)
                 for d in range(num_tables)
                 for t in range(T_star - P[g] + 1)
             ),
             name="continuous_assignment",
         )
+        # sum_d b[g, d] <= H[g]
         self.model.addConstrs(
             (
-                gp.quicksum(b[g, d] for d in range(num_tables)) <= H[g]
+                gp.quicksum(b[g, d] for d in range(num_tables)) == 1
                 for g in range(num_groups)
             ),
             name="max_tables",
         )
+        # 2 * x[g, t] <= a[g, d, t] - a[g, d, t - 1] + 1
         self.model.addConstrs(
             (
-                2 * x[g, t] <= a[g, d, t] - a[g, d, t - 1] + 1
+                x[g, 0] <= a[g, d, 0] + 9999 * (1 - b[g, d])
                 for g in range(num_groups)
                 for d in range(num_tables)
-                for t in range(1, T_star)
+            ),
+            name="start_time_0",
+        )
+        self.model.addConstrs(
+            (
+                2 * x[g, t] <= a[g, d, t] - a[g, d, t - 1] + 1 + 9999 * (1 - b[g, d])
+                for g in range(num_groups)
+                for d in range(num_tables)
+                for t in range(2, T_star)
             ),
             name="start_time",
         )
+        # x[g, t] <= 0
         self.model.addConstrs(
             (
                 x[g, t] <= 0
@@ -117,6 +135,7 @@ class Solver:
             ),
             name="max_wait",
         )
+        # sum_g a[g, d, t] <= 1
         self.model.addConstrs(
             (
                 gp.quicksum(a[g, d, t] for g in range(num_groups)) <= 1
@@ -125,6 +144,7 @@ class Solver:
             ),
             name="single_assignment",
         )
+        # sum_t x[g, t] = 1
         self.model.addConstrs(
             (
                 gp.quicksum(x[g, t] for t in range(T_star)) == 1
@@ -149,7 +169,7 @@ class Solver:
             print("No optimal solution found")
 
     def to_solution(self, testcase):
-       # Extract data from testcase
+        # Extract data from testcase
         N = testcase.Ng
         M = testcase.Md
         C = testcase.Cij
@@ -163,16 +183,13 @@ class Solver:
         num_groups = int(len(N))
         num_tables = int(len(M))
         T_star = int(max(U) + max(P)) * num_groups
-        
+
         if self.model.status == GRB.OPTIMAL:
             solution = {
                 "a": np.array(
                     [
                         [
-                            [
-                                self.solution["a"][g, d, t].x
-                                for t in range(T_star)
-                            ]
+                            [self.solution["a"][g, d, t].x for t in range(T_star)]
                             for d in range(num_tables)
                         ]
                         for g in range(num_groups)
@@ -180,19 +197,13 @@ class Solver:
                 ),
                 "b": np.array(
                     [
-                        [
-                            self.solution["b"][g, d].x
-                            for d in range(num_tables)
-                        ]
+                        [self.solution["b"][g, d].x for d in range(num_tables)]
                         for g in range(num_groups)
                     ]
                 ),
                 "x": np.array(
                     [
-                        [
-                            self.solution["x"][g, t].x
-                            for t in range(T_star)
-                        ]
+                        [self.solution["x"][g, t].x for t in range(T_star)]
                         for g in range(num_groups)
                     ]
                 ),

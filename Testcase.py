@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Testcase:
-    def __init__(self, Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, alpha):
+    def __init__(self, Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, Odt, alpha):
         self.Ng = Ng
         self.Md = Md
         self.Cij = Cij
@@ -13,6 +13,7 @@ class Testcase:
         self.Sg = Sg
         self.Rg = Rg
         self.Hg = Hg
+        self.Odt = Odt
         self.alpha = alpha
 
     @staticmethod
@@ -31,9 +32,11 @@ class Testcase:
         Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
         Rg = np.random.randint(0, 1, num_groups)
         Hg = np.random.randint(max_tables, max_tables + 1, num_groups)
+        Odt = np.random.randint(0, 2, (num_tables, max_duration* num_groups))
+        Odt = np.random.choice([0, 1], size=(num_tables, max_duration * num_groups), p=[0.9, 0.1])
         alpha = random.uniform(0, 1)
 
-        return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, alpha)
+        return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, Odt, alpha)
 
     def save_to_csv(self, filename):
         data = {
@@ -45,6 +48,7 @@ class Testcase:
             "Sg": self.Sg,
             "Rg": self.Rg,
             "Hg": self.Hg,
+            "Odt": self.Odt.flatten(),
             "alpha": [self.alpha],
         }
 
@@ -67,9 +71,10 @@ class Testcase:
         Sg = data["Sg"].astype(int)
         Rg = data["Rg"].astype(int)
         Hg = data["Hg"].astype(int)
+        Odt = data["Odt"].reshape((len(Md), -1)).astype(int)
         alpha = round(data["alpha"][0], 2)
 
-        return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, alpha)
+        return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, Odt, alpha)
 
 
 if __name__ == "__main__":
@@ -100,4 +105,6 @@ if __name__ == "__main__":
     print(loaded_testcase.Rg)
     print("Hg - Maximum number of tables group g is willing to be assigned to:")
     print(loaded_testcase.Hg)
+    print("Odt - Binary variable, 1 if table d is available at time t, 0 otherwise:")
+    print(loaded_testcase.Odt)
     print("alpha:", loaded_testcase.alpha)

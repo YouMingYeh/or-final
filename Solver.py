@@ -22,6 +22,7 @@ class Solver:
         S = testcase.Sg
         R = testcase.Rg
         H = testcase.Hg
+        O = testcase.Odt
         alpha = testcase.alpha
 
         num_groups = int(len(N))
@@ -151,6 +152,17 @@ class Solver:
                 for g in range(num_groups)
             ),
             name="single_start",
+        )
+        # a[g, d, t] <= 0 if O[d, t] = 1
+        self.model.addConstrs(
+            (
+                a[g, d, t] <= 0
+                for g in range(num_groups)
+                for d in range(num_tables)
+                for t in range(len(O[d]))
+                if O[d, t] == 1
+            ),
+            name="table_unavailability",
         )
 
         # Optimize the model

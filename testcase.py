@@ -52,15 +52,15 @@ class Testcase:
             reader = csv.reader(file)
             data = {rows[0]: np.array(rows[1:], dtype=float) for rows in reader}
 
-        Ng = data["Ng"]
-        Md = data["Md"]
-        Cij = data["Cij"].reshape((len(Md), len(Md)))
-        Pg = data["Pg"]
-        Ug = data["Ug"]
-        Sg = data["Sg"]
-        Rg = data["Rg"]
-        Hg = data["Hg"]
-        alpha = data["alpha"][0]
+        Ng = data["Ng"].astype(int)
+        Md = data["Md"].astype(int)
+        Cij = data["Cij"].reshape((len(Md), len(Md))).astype(int)
+        Pg = data["Pg"].astype(int)
+        Ug = data["Ug"].astype(int)
+        Sg = data["Sg"].astype(int)
+        Rg = data["Rg"].astype(int)
+        Hg = data["Hg"].astype(int)
+        alpha = int(data["alpha"][0])
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, alpha)
 

@@ -1,7 +1,7 @@
 import gurobipy as gp
 from gurobipy import GRB
 import numpy as np
-from testcase import Testcase
+from Testcase import Testcase
 
 
 class Solver:
@@ -111,7 +111,7 @@ class Solver:
         # 2 * x[g, t] <= a[g, d, t] - a[g, d, t - 1] + 1
         self.model.addConstrs(
             (
-                x[g, 0] <= a[g, d, 0] + 2 * (1 - b[g, d])
+                x[g, 0] <= a[g, d, 0] + (1 - b[g, d])
                 for g in range(num_groups)
                 for d in range(num_tables)
             ),
@@ -222,7 +222,7 @@ if __name__ == "__main__":
     solver.solve(testcase)
     solver.report()
     solution = solver.to_solution(testcase)
-    if solution:
-        print("Solution:", solution)
-    else:
-        print("No solution found")
+    # if solution:
+    #     print("Solution:", solution)
+    # else:
+    #     print("No solution found")

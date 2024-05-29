@@ -21,14 +21,10 @@ class Testcase:
     ):
         Ng = np.random.randint(1, 8, num_groups)
         Md = np.random.randint(2, max_seats + 1, num_tables)
-        # Cij = np.random.randint(0, 2, (num_tables, num_tables))
-        # # Cij = Cji
-        # for i in range(num_tables):
-        #     for j in range(i, num_tables):
-        #         # Cij[i, j] = Cij[j, i]
-        #         Cij[i, j] = 1
         Cij_upper = np.triu(np.random.randint(0, 2, (num_tables, num_tables)))
         Cij = Cij_upper + Cij_upper.T - np.diag(Cij_upper.diagonal())
+        for i in range(num_tables):
+            Cij[i, i] = 1
 
         Pg = np.random.randint(1, max_duration + 1, num_groups)
         Ug = np.random.randint(max_duration, max_wait + 1, num_groups)
@@ -79,7 +75,7 @@ class Testcase:
 if __name__ == "__main__":
     # Generate data and save to CSV
     testcase = Testcase.generate_data(
-        num_groups=2,
+        num_groups=4,
         num_tables=5,
         max_seats=10,
         max_duration=10,
@@ -93,24 +89,14 @@ if __name__ == "__main__":
     print("Loaded Testcase:")
     print("Ng - Number of customer in group g:", loaded_testcase.Ng)
     print("Md - Number of seats of table d:", loaded_testcase.Md)
-    print(
-        "Cij - Binary variable, 1 if tables i and j can be combined for larger groups, 0 otherwise:",
-        loaded_testcase.Cij,
-    )
-    print(
-        "Pg - Meal duration for group g, measured in time periods:", loaded_testcase.Pg
-    )
-    print(
-        "Ug - Maximum waiting time allowed for group g before seating, measured in time periods.:",
-        loaded_testcase.Ug,
-    )
+    print("Cij - Binary variable, 1 if tables i and j can be combined for larger groups, 0 otherwise:")
+    print(loaded_testcase.Cij)
+    print("Pg - Meal duration for group g, measured in time periods:", loaded_testcase.Pg)
+    print("Ug - Maximum waiting time allowed for group g before seating, measured in time periods.:")
+    print(loaded_testcase.Ug)
     print("Sg - Number of time periods group g has already waited:", loaded_testcase.Sg)
-    print(
-        "Rg - Binary variable indicates if group g has a reservation:",
-        loaded_testcase.Rg,
-    )
-    print(
-        "Hg - Maximum number of tables group g is willing to be assigned to:",
-        loaded_testcase.Hg,
-    )
+    print("Rg - Binary variable indicates if group g has a reservation:")
+    print(loaded_testcase.Rg)
+    print("Hg - Maximum number of tables group g is willing to be assigned to:")
+    print(loaded_testcase.Hg)
     print("alpha:", loaded_testcase.alpha)

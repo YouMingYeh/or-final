@@ -103,7 +103,7 @@ class Solver:
         # sum_d b[g, d] <= H[g]
         self.model.addConstrs(
             (
-                gp.quicksum(b[g, d] for d in range(num_tables)) == 1
+                gp.quicksum(b[g, d] for d in range(num_tables)) <= H[g]
                 for g in range(num_groups)
             ),
             name="max_tables",

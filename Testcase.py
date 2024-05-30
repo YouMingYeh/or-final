@@ -18,7 +18,13 @@ class Testcase:
 
     @staticmethod
     def generate_data(
-        number_people, num_groups, num_tables, max_seats, max_duration, max_wait, max_tables
+        number_people,
+        num_groups,
+        num_tables,
+        max_seats,
+        max_duration,
+        max_wait,
+        max_tables,
     ):
         Ng = np.random.randint(1, number_people, num_groups)
         Md = np.random.randint(2, max_seats + 1, num_tables)
@@ -32,8 +38,10 @@ class Testcase:
         Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
         Rg = np.random.randint(0, 1, num_groups)
         Hg = np.random.randint(max_tables, max_tables + 1, num_groups)
-        Odt = np.random.randint(0, 2, (num_tables, max_duration* num_groups))
-        Odt = np.random.choice([0, 1], size=(num_tables, max_duration * num_groups), p=[0.9, 0.1])
+        Odt = np.random.randint(0, 2, (num_tables, max_duration * num_groups))
+        Odt = np.random.choice(
+            [0, 1], size=(num_tables, max_duration * num_groups), p=[0.9, 0.1]
+        )
         alpha = random.uniform(0, 1)
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, Odt, alpha)
@@ -75,18 +83,40 @@ class Testcase:
         alpha = round(data["alpha"][0], 2)
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, Odt, alpha)
+    
+    def dapu(number_people, num_groups, max_duration, max_wait):
+        max_seats = 1
+        num_tables =10
+        Ng = np.random.randint(1, number_people, num_groups)
+        Md = np.random.randint(1, max_seats + 1, num_tables)
+        Cij = np.zeros((num_tables, num_tables), dtype=int)
+        for i in range(num_tables):
+            Cij[i, i] = 1
+        for i in range(num_tables-1):
+            Cij[i, i+1] = 1
+            Cij[i+1, i] = 1
+
+        Pg = np.random.randint(1, max_duration + 1, num_groups)
+        Ug = np.random.randint(max_duration, max_wait + 1, num_groups)
+        Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
+        Rg = np.random.randint(0, 1, num_groups)
+        Hg = np.random.randint(10, 10 + 1, num_groups)
+        Odt = np.random.randint(0, 2, (num_tables, max_duration * num_groups))
+        Odt = np.random.choice(
+            [0, 1], size=(num_tables, max_duration * num_groups), p=[1, 0]
+        )
+        alpha = random.uniform(0, 1)
+
+        return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Rg, Hg, Odt, alpha)
 
 
 if __name__ == "__main__":
     # Generate data and save to CSV
-    testcase = Testcase.generate_data(
-        number_people= 8,
+    testcase = Testcase.dapu(
+        number_people=5,
         num_groups=5,
-        num_tables=4,
-        max_seats=8,
-        max_duration=10,
-        max_wait=100,
-        max_tables=2,
+        max_duration=5,
+        max_wait=30
     )
     testcase.save_to_csv("testcase_data.csv")
 
@@ -95,10 +125,16 @@ if __name__ == "__main__":
     print("Loaded Testcase:")
     print("Ng - Number of customer in group g:", loaded_testcase.Ng)
     print("Md - Number of seats of table d:", loaded_testcase.Md)
-    print("Cij - Binary variable, 1 if tables i and j can be combined for larger groups, 0 otherwise:")
+    print(
+        "Cij - Binary variable, 1 if tables i and j can be combined for larger groups, 0 otherwise:"
+    )
     print(loaded_testcase.Cij)
-    print("Pg - Meal duration for group g, measured in time periods:", loaded_testcase.Pg)
-    print("Ug - Maximum waiting time allowed for group g before seating, measured in time periods.:")
+    print(
+        "Pg - Meal duration for group g, measured in time periods:", loaded_testcase.Pg
+    )
+    print(
+        "Ug - Maximum waiting time allowed for group g before seating, measured in time periods.:"
+    )
     print(loaded_testcase.Ug)
     print("Sg - Number of time periods group g has already waited:", loaded_testcase.Sg)
     print("Rg - Binary variable indicates if group g has a reservation:")

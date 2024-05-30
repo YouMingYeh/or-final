@@ -99,6 +99,20 @@ class FCFS:
                             allocated = True
                             break
 
+        # Calculate and print waiting times
+        waiting_times = []
+        for g in range(G):
+            start_time = None
+            for t in range(T):
+                if any(a[g][d][t] == 1 for d in range(D)):
+                    start_time = t
+                    break
+            if start_time is not None:
+                waiting_time = N[g] * (S[g] + start_time)
+                waiting_times.append(waiting_time)
+            else:
+                waiting_times.append(None)
+
         print("Sorted Wait Times (S):", S)
         print("Group Sizes (N):", N)
         print("Meal Durations (P):", P)
@@ -106,6 +120,8 @@ class FCFS:
         print("Allocation Matrix (a):")
         for m in a:
             print(m)
+        print("Waiting Times:", waiting_times)
+        print("Total Waiting Time:", sum(waiting_times))
 
 if __name__ == "__main__":
     testcase = Testcase.from_csv("testcase_data.csv")

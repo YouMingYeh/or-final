@@ -1,5 +1,7 @@
 from Testcase import Testcase
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 class FCFS:
     def solve(self, testcase):
@@ -28,9 +30,9 @@ class FCFS:
         T = len(O[0])  # Number of time periods
 
         # Sort groups by their waiting time S in descending order
-        zipped_lists = zip(S, N, P, U, H)
+        zipped_lists = zip(S-U, S, N, P, U, H)
         sorted_zipped_lists = sorted(zipped_lists, reverse=True, key=lambda x: x[0])
-        S, N, P, U, H = [list(t) for t in zip(*sorted_zipped_lists)]
+        _, S, N, P, U, H = [list(t) for t in zip(*sorted_zipped_lists)]
 
         # Initialize a_{gdt} as a 3D array of zeros
         a = np.zeros((G, D, T), dtype=int)
@@ -45,7 +47,11 @@ class FCFS:
                 current = to_visit.pop()
                 visited.add(current)
                 for neighbor in tables:
-                    if neighbor != current and C[current][neighbor] == 1 and neighbor not in visited:
+                    if (
+                        neighbor != current
+                        and C[current][neighbor] == 1
+                        and neighbor not in visited
+                    ):
                         to_visit.append(neighbor)
             return len(visited) == len(tables)
 
@@ -57,7 +63,7 @@ class FCFS:
             if t + P[g] > T:
                 return False
             for d in tables:
-                if any(O[d][t:t+P[g]] == 1):
+                if any(O[d][t : t + P[g]] == 1):
                     return False
             return is_connected(tables)
 
@@ -89,7 +95,7 @@ class FCFS:
                 for d in range(D):
                     if O[d][t] == 0 and N[g] <= M[d]:
                         # Check if the table is available for the entire duration of the meal
-                        if t + P[g] <= T and all(O[d][t:t+P[g]] == 0):
+                        if t + P[g] <= T and all(O[d][t : t + P[g]] == 0):
                             # Allocate table d to group g at time t for the entire meal duration
                             seat_group_at_tables(g, t, [d])
                             allocated = True
@@ -122,8 +128,42 @@ class FCFS:
             print(m)
         print("Waiting Times:", waiting_times)
         print("Total Waiting Time:", sum(waiting_times))
+        return a
+    
+    def draw_solution(self, solution):
+        a = solution["a"]
+        num_groups = len(a)
+        num_tables = len(a[0])
+        T_star = len(a[0][0])
+
+        fig, gnt = plt.subplots()
+
+        gnt.set_xlabel("Time")
+        gnt.set_ylabel("Tables")
+
+        gnt.set_xticks(np.arange(0, T_star, step=1))
+        gnt.set_yticks(np.arange(0, num_tables, step=1))
+        gnt.set_xticklabels(np.arange(0, T_star, step=1))
+        gnt.set_yticklabels(np.arange(0, num_tables, step=1))
+
+        gnt.grid(True)
+
+        colors = plt.cm.get_cmap("tab20", num_groups)
+
+        for g in range(num_groups):
+            for d in range(num_tables):
+                for t in range(T_star):
+                    if a[g, d, t] > 0.5:
+                        gnt.broken_barh([(t, 1)], (d - 0.4, 0.8), facecolors=colors(g))
+
+        plt.show()
+
 
 if __name__ == "__main__":
     testcase = Testcase.from_csv("testcase_data.csv")
     solver = FCFS()
-    solver.solve(testcase)
+    a = solver.solve(testcase)
+    print(a)
+    
+    if a is not None:
+        solver.draw_solution({"a": a})

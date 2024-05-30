@@ -49,10 +49,11 @@ class Solver:
             for g in range(num_groups)
         )
         table_minimization = gp.quicksum(
-            alpha * (- gp.quicksum(b[g, d] for d in range(num_tables)))
+            alpha * (-gp.quicksum(b[g, d] for d in range(num_tables)))
             for g in range(num_groups)
         )
 
+        # self.model.setObjective(wait_time - table_minimization, GRB.MINIMIZE)
         self.model.setObjective(wait_time, GRB.MINIMIZE)
 
         # Constraints
@@ -88,7 +89,7 @@ class Solver:
                 gp.quicksum(
                     C[i, j] * c[g, i, j]
                     for i in range(num_tables)
-                    for j in range(i+1, num_tables)
+                    for j in range(i + 1, num_tables)
                 )
                 >= gp.quicksum(b[g, i] for i in range(num_tables)) - 1
                 for g in range(num_groups)
@@ -238,9 +239,7 @@ class Solver:
                 "c": np.array(
                     [
                         [
-                            [
-                                [self.solution["c"][g, i, j].x for j in range(num_tables)]
-                            ]
+                            [[self.solution["c"][g, i, j].x for j in range(num_tables)]]
                             for i in range(num_tables)
                         ]
                         for g in range(num_groups)

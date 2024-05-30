@@ -34,11 +34,13 @@ class Testcase:
 
         Pg = np.random.randint(1, max_duration + 1, num_groups)
         Ug = np.random.randint(max_duration, max_wait + 1, num_groups)
-        Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
+        Sg = np.random.randint(0, max_duration / 2 + 1, num_groups)
         Hg = np.random.randint(max_tables, max_tables + 1, num_groups)
-        Odt = np.random.randint(0, 2, (num_tables, max_duration * num_groups))
+        Odt = np.random.randint(
+            0, 2, (num_tables, (max_duration + max_wait) * num_groups)
+        )
         Odt = np.random.choice(
-            [0, 1], size=(num_tables, max_duration * num_groups), p=[0.9, 0.1]
+            [0, 1], size=(num_tables, (max_duration + max_wait) * num_groups), p=[0.9, 0.1]
         )
         alpha = random.uniform(0, 1)
 
@@ -155,20 +157,70 @@ class Testcase:
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Hg, Odt, alpha)
 
+    def sanma(number_people, num_groups, max_duration, max_wait):
+        max_seats = 4
+        num_tables = 6
+        Ng = np.random.randint(1, number_people, num_groups)
+        Md = np.zeros(num_tables, dtype=int)
+        Md[0] = 4
+        Md[1] = 4
+        Md[2] = 2
+        Md[3] = 2
+        Md[4] = 2
+        Md[5] = 2
+
+        Cij = np.zeros((num_tables, num_tables), dtype=int)
+        for i in range(num_tables):
+            Cij[i, i] = 1
+        Cij[0, 1] = 1
+        Cij[1, 0] = 1
+        Cij[1, 2] = 1
+        Cij[2, 1] = 1
+        Cij[1, 3] = 1
+        Cij[3, 1] = 1
+
+        Cij[2, 3] = 1
+        Cij[3, 2] = 1
+        Cij[2, 4] = 1
+        Cij[4, 2] = 1
+
+        Cij[3, 5] = 1
+        Cij[5, 3] = 1
+
+        Cij[4, 5] = 1
+        Cij[5, 4] = 1
+
+        Pg = np.random.randint(1, max_duration + 1, num_groups)
+        Ug = np.random.randint(max_duration, max_wait + 1, num_groups)
+        Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
+        Hg = np.random.randint(10, 10 + 1, num_groups)
+        Odt = np.random.randint(0, 2, (num_tables, max_duration * num_groups))
+        Odt = np.random.choice(
+            [0, 1], size=(num_tables, max_duration * num_groups), p=[1, 0]
+        )
+        alpha = random.uniform(0, 1)
+
+        return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Hg, Odt, alpha)
+
 
 if __name__ == "__main__":
     # Generate data and save to CSV
-    # testcase = Testcase.hantiange(number_people=6, num_groups=10, max_duration=5, max_wait=30)
-    testcase = Testcase.dapu(number_people=5, num_groups=6, max_duration=5, max_wait=30)
-    # testcase = Testcase.generate_data(
-    #     number_people=10,
-    #     num_groups=5,
-    #     num_tables=10,
-    #     max_seats=4,
-    #     max_duration=5,
-    #     max_wait=30,
-    #     max_tables=10,
+    # testcase = Testcase.sanma(
+    #     number_people=6, num_groups=10, max_duration=5, max_wait=30
     # )
+    # testcase = Testcase.hantiange(
+    #     number_people=6, num_groups=10, max_duration=5, max_wait=30
+    # )
+    # testcase = Testcase.dapu(number_people=10, num_groups=6, max_duration=5, max_wait=30)
+    testcase = Testcase.generate_data(
+        number_people=10,
+        num_groups=10,
+        num_tables=10,
+        max_seats=4,
+        max_duration=6,
+        max_wait=12,
+        max_tables=4,
+    )
     testcase.save_to_csv("testcase_data.csv")
 
     # Load data from CSV and create Testcase object

@@ -103,7 +103,7 @@ class Testcase:
         alpha = random.uniform(0, 1)
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Hg, Odt, alpha)
-    
+
     def hantiange(number_people, num_groups, max_duration, max_wait):
         max_seats = 4
         num_tables = 12
@@ -121,9 +121,7 @@ class Testcase:
         Md[9] = 4
         Md[10] = 2
         Md[11] = 4
-        
-        
-        
+
         Cij = np.zeros((num_tables, num_tables), dtype=int)
         for i in range(num_tables):
             Cij[i, i] = 1
@@ -139,13 +137,12 @@ class Testcase:
         Cij[6, 5] = 1
         Cij[6, 7] = 1
         Cij[7, 6] = 1
-        Cij[8,9] = 1
-        Cij[9,8] = 1
-        Cij[9,10] = 1
-        Cij[10,9] = 1
-        Cij[10,11] = 1
-        Cij[11,10] = 1
-
+        Cij[8, 9] = 1
+        Cij[9, 8] = 1
+        Cij[9, 10] = 1
+        Cij[10, 9] = 1
+        Cij[10, 11] = 1
+        Cij[11, 10] = 1
         Pg = np.random.randint(1, max_duration + 1, num_groups)
         Ug = np.random.randint(max_duration, max_wait + 1, num_groups)
         Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
@@ -161,16 +158,17 @@ class Testcase:
 
 if __name__ == "__main__":
     # Generate data and save to CSV
-    # testcase = Testcase.dapu(number_people=5, num_groups=10, max_duration=5, max_wait=30)
-    testcase = Testcase.generate_data(
-        number_people=10,
-        num_groups=5,
-        num_tables=10,
-        max_seats=4,
-        max_duration=5,
-        max_wait=30,
-        max_tables=10,
-    )
+    # testcase = Testcase.hantiange(number_people=6, num_groups=10, max_duration=5, max_wait=30)
+    testcase = Testcase.dapu(number_people=5, num_groups=10, max_duration=5, max_wait=30)
+    # testcase = Testcase.generate_data(
+    #     number_people=10,
+    #     num_groups=5,
+    #     num_tables=10,
+    #     max_seats=4,
+    #     max_duration=5,
+    #     max_wait=30,
+    #     max_tables=10,
+    # )
     testcase.save_to_csv("testcase_data.csv")
 
     # Load data from CSV and create Testcase object

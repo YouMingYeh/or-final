@@ -16,7 +16,7 @@ class FCFS:
         # Number of time periods group g has already waited.
         S = testcase.Sg
         # Binary variable indicates if group g has a reservation.
-        R = testcase.Rg
+        # R = testcase.Rg
         # Maximum number of tables group g is willing to be assigned to.
         H = testcase.Hg
         # Binary variable, 1 if table d is occupied at time t, 0 otherwise.
@@ -28,9 +28,9 @@ class FCFS:
         T = len(O[0])  # Number of time periods
 
         # Sort groups by their waiting time S in descending order
-        zipped_lists = zip(S, N, P, U, R, H)
+        zipped_lists = zip(S, N, P, U, H)
         sorted_zipped_lists = sorted(zipped_lists, reverse=True, key=lambda x: x[0])
-        S, N, P, U, R, H = [list(t) for t in zip(*sorted_zipped_lists)]
+        S, N, P, U, H = [list(t) for t in zip(*sorted_zipped_lists)]
 
         # Initialize a_{gdt} as a 3D array of zeros
         a = np.zeros((G, D, T), dtype=int)

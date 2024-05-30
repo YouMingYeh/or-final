@@ -53,7 +53,7 @@ class Solver:
             for g in range(num_groups)
         )
 
-        self.model.setObjective(wait_time - table_minimization, GRB.MINIMIZE)
+        self.model.setObjective(wait_time, GRB.MINIMIZE)
 
         # Constraints
         self.model.addConstrs(
@@ -63,15 +63,15 @@ class Solver:
             ),
             name="seating_capacity",
         )
-        self.model.addConstrs(
-            (
-                b[g, i]
-                <= gp.quicksum(C[i, j] * b[g, j] for j in range(num_tables) if i != j)
-                for g in range(num_groups)
-                for i in range(num_tables)
-            ),
-            name="table_combination",
-        )
+        # self.model.addConstrs(
+        #     (
+        #         b[g, i]
+        #         <= gp.quicksum(C[i, j] * b[g, j] for j in range(num_tables) if i != j)
+        #         for g in range(num_groups)
+        #         for i in range(num_tables)
+        #     ),
+        #     name="table_combination",
+        # )
 
         self.model.addConstrs(
             (

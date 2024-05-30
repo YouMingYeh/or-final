@@ -82,7 +82,7 @@ class Testcase:
 
     def dapu(number_people, num_groups, max_duration, max_wait):
         max_seats = 1
-        num_tables = 10
+        num_tables = 6
         Ng = np.random.randint(1, number_people, num_groups)
         Md = np.random.randint(1, max_seats + 1, num_tables)
         Cij = np.zeros((num_tables, num_tables), dtype=int)
@@ -159,7 +159,7 @@ class Testcase:
 if __name__ == "__main__":
     # Generate data and save to CSV
     # testcase = Testcase.hantiange(number_people=6, num_groups=10, max_duration=5, max_wait=30)
-    testcase = Testcase.dapu(number_people=5, num_groups=10, max_duration=5, max_wait=30)
+    testcase = Testcase.dapu(number_people=5, num_groups=6, max_duration=5, max_wait=30)
     # testcase = Testcase.generate_data(
     #     number_people=10,
     #     num_groups=5,

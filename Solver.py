@@ -22,7 +22,6 @@ class Solver:
         P = testcase.Pg
         U = testcase.Ug
         S = testcase.Sg
-        R = testcase.Rg
         H = testcase.Hg
         O = testcase.Odt
         alpha = testcase.alpha
@@ -46,7 +45,7 @@ class Solver:
 
         # Objective function
         wait_time = gp.quicksum(
-            (1 - R[g]) * N[g] * (gp.quicksum(t * x[g, t] for t in range(T_star)) + S[g])
+            N[g] * (gp.quicksum(t * x[g, t] for t in range(T_star)) + S[g])
             for g in range(num_groups)
         )
         table_minimization = gp.quicksum(
@@ -89,8 +88,7 @@ class Solver:
                 gp.quicksum(
                     C[i, j] * c[g, i, j]
                     for i in range(num_tables)
-                    for j in range(num_tables)
-                    if i != j
+                    for j in range(i+1, num_tables)
                 )
                 >= gp.quicksum(b[g, i] for i in range(num_tables)) - 1
                 for g in range(num_groups)
@@ -206,7 +204,6 @@ class Solver:
         P = testcase.Pg
         U = testcase.Ug
         S = testcase.Sg
-        R = testcase.Rg
         H = testcase.Hg
         O = testcase.Odt
         alpha = testcase.alpha

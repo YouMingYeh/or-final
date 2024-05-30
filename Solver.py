@@ -49,7 +49,7 @@ class Solver:
             for g in range(num_groups)
         )
         table_minimization = gp.quicksum(
-            alpha * (H[g] - gp.quicksum(b[g, d] for d in range(num_tables)))
+            alpha * (- gp.quicksum(b[g, d] for d in range(num_tables)))
             for g in range(num_groups)
         )
 

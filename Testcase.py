@@ -146,17 +146,16 @@ class Testcase:
         Cij[10, 9] = 1
         Cij[10, 11] = 1
         Cij[11, 10] = 1
-        Pg = np.random.randint(1, max_duration + 1, num_groups)
+        Pg = np.random.randint(max_duration-1, max_duration + 1, num_groups)
         Ug = np.random.randint(max_duration, max_wait + 1, num_groups)
         Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
         Hg = np.random.randint(10, 10 + 1, num_groups)
-        Odt = np.random.randint(0, 2, (num_tables, max_duration * num_groups))
         Odt = np.zeros((num_tables, max_duration * num_groups))
         for i in range(num_tables):
             num_occ = random.randint(0, max_duration)
             for j in range(num_occ):
                 Odt[i, j] = 1
-        alpha = 1
+        alpha = 0.1
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Hg, Odt, alpha)
 
@@ -212,7 +211,7 @@ if __name__ == "__main__":
     #     number_people=6, num_groups=10, max_duration=5, max_wait=30
     # )
     # testcase = Testcase.hantiange(
-    #     number_people=6, num_groups=10, max_duration=5, max_wait=30
+    #     number_people=8, num_groups=10, max_duration=6, max_wait=12
     # )
     # testcase = Testcase.dapu(number_people=5, num_groups=4, max_duration=4, max_wait=12)
     # testcase = Testcase.generate_data(

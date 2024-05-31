@@ -108,7 +108,6 @@ class Testcase:
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Hg, Odt, alpha)
 
     def hantiange(number_people, num_groups, max_duration, max_wait):
-        max_seats = 4
         num_tables = 12
         Ng = np.random.randint(1, number_people, num_groups)
         Md = np.zeros(num_tables, dtype=int)
@@ -151,10 +150,10 @@ class Testcase:
         Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
         Hg = np.random.randint(10, 10 + 1, num_groups)
         Odt = np.zeros((num_tables, max_duration * num_groups))
-        for i in range(num_tables):
-            num_occ = random.randint(0, max_duration)
-            for j in range(num_occ):
-                Odt[i, j] = 1
+        # for i in range(num_tables):
+            # num_occ = random.randint(0, max_duration)
+            # for j in range(num_occ):
+            #     Odt[i, j] = 1
         alpha = 0.1
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Hg, Odt, alpha)
@@ -194,7 +193,7 @@ class Testcase:
 
         Pg = np.random.randint(1, max_duration + 1, num_groups)
         Ug = np.random.randint(max_duration, max_wait + 1, num_groups)
-        Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
+        Sg = np.random.randint(0, max_wait / 3 + 1, num_groups)
         Hg = np.random.randint(10, 10 + 1, num_groups)
         Odt = np.random.randint(0, 2, (num_tables, max_duration * num_groups))
         Odt = np.random.choice(
@@ -210,10 +209,10 @@ if __name__ == "__main__":
     # testcase = Testcase.sanma(
     #     number_people=6, num_groups=10, max_duration=5, max_wait=30
     # )
-    # testcase = Testcase.hantiange(
-    #     number_people=8, num_groups=10, max_duration=6, max_wait=12
-    # )
-    testcase = Testcase.dapu(number_people=4, num_groups=8)
+    testcase = Testcase.hantiange(
+        number_people=4, num_groups=12, max_duration=6, max_wait=36
+    )
+    # testcase = Testcase.dapu(number_people=4, num_groups=8)
     # testcase = Testcase.generate_data(
     #     number_people=10,
     #     num_groups=10,

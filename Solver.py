@@ -54,8 +54,8 @@ class Solver:
             for g in range(num_groups)
         )
 
-        self.model.setObjective(wait_time - table_minimization, GRB.MINIMIZE)
-        # self.model.setObjective(wait_time, GRB.MINIMIZE)
+        # self.model.setObjective(wait_time - table_minimization, GRB.MINIMIZE)
+        self.model.setObjective(wait_time, GRB.MINIMIZE)
 
         # Constraints
         self.model.addConstrs(

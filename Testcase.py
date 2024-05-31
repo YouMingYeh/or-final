@@ -103,7 +103,7 @@ class Testcase:
             num_occ = random.randint(0, max_duration)
             for j in range(num_occ):
                 Odt[i, j] = 1
-        alpha = random.uniform(0, 1)
+        alpha = 0.1
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Hg, Odt, alpha)
 
@@ -227,7 +227,7 @@ if __name__ == "__main__":
     # testcase.save_to_csv("testcase_data.csv")
 
     # Load data from CSV and create Testcase object
-    loaded_testcase = Testcase.from_csv("dapu/testcase_1.csv")
+    loaded_testcase = Testcase.from_csv("testcase_data.csv")
     print("Loaded Testcase:")
     print("Ng - Number of customer in group g:", loaded_testcase.Ng)
     print("Md - Number of seats of table d:", loaded_testcase.Md)

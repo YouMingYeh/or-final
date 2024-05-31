@@ -54,8 +54,8 @@ class Solver:
             for g in range(num_groups)
         )
 
-        # self.model.setObjective(wait_time - table_minimization, GRB.MINIMIZE)
-        self.model.setObjective(wait_time, GRB.MINIMIZE)
+        self.model.setObjective(wait_time - table_minimization, GRB.MINIMIZE)
+        # self.model.setObjective(wait_time, GRB.MINIMIZE)
 
         # Constraints
         self.model.addConstrs(
@@ -189,6 +189,10 @@ class Solver:
 
         # Store the solution
         self.solution = {"a": a, "b": b, "x": x, "c": c}
+        
+        # write results to file
+        with open("gurobi.txt", "w") as f:
+            f.write("Objective Value: " + str(self.model.ObjVal) + "\n")
 
     def report(self):
         if self.model.status == GRB.OPTIMAL:

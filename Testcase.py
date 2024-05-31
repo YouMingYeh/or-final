@@ -213,7 +213,7 @@ if __name__ == "__main__":
     # testcase = Testcase.hantiange(
     #     number_people=8, num_groups=10, max_duration=6, max_wait=12
     # )
-    # testcase = Testcase.dapu(number_people=5, num_groups=4, max_duration=4, max_wait=12)
+    testcase = Testcase.dapu(number_people=5, num_groups=4, max_duration=4, max_wait=12)
     # testcase = Testcase.generate_data(
     #     number_people=10,
     #     num_groups=10,
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     #     max_wait=12,
     #     max_tables=4,
     # )
-    # testcase.save_to_csv("testcase_data.csv")
+    testcase.save_to_csv("testcase_data.csv")
 
     # Load data from CSV and create Testcase object
     loaded_testcase = Testcase.from_csv("testcase_data.csv")

@@ -147,6 +147,18 @@ class FCFS:
         print("Total Waiting Time:", sum(filter(None, waiting_times)))
         print("Penalty:", penalty)
         print("Objective Value:", sum(filter(None, waiting_times)) - alpha * penalty)
+        # write to file
+        with open("FCFS.txt", "w") as f:
+            f.write("Sorted Wait Times (S):" + str(S) + "\n")
+            f.write("Group Sizes (N):" + str(N) + "\n")
+            f.write("Meal Durations (P):" + str(P) + "\n")
+            f.write("Occupancy Matrix (O):" + str(O) + "\n")
+            f.write("Allocation Matrix (a):" + str(a) + "\n")
+            f.write("Waiting Times:" + str(waiting_times) + "\n")
+            f.write("Total Waiting Time:" + str(sum(filter(None, waiting_times))) + "\n")
+            f.write("Penalty:" + str(penalty) + "\n")
+            f.write("Objective Value:" + str(sum(filter(None, waiting_times)) - alpha * penalty))
+            
         return a
 
     def draw_solution(self, solution):

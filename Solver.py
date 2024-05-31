@@ -14,6 +14,7 @@ class Solver:
     def solve(self, testcase):
         # Create a new model
         self.model = gp.Model("restaurant_seating")
+        self.model.params.MIPFocus = 3
 
         # Extract data from testcase
         N = testcase.Ng
@@ -49,12 +50,12 @@ class Solver:
             for g in range(num_groups)
         )
         table_minimization = gp.quicksum(
-            alpha * (-gp.quicksum(b[g, d] for d in range(num_tables)))
+            alpha * (H[g] - gp.quicksum(b[g, d] for d in range(num_tables)))
             for g in range(num_groups)
         )
 
-        # self.model.setObjective(wait_time - table_minimization, GRB.MINIMIZE)
-        self.model.setObjective(wait_time, GRB.MINIMIZE)
+        self.model.setObjective(wait_time - table_minimization, GRB.MINIMIZE)
+        # self.model.setObjective(wait_time, GRB.MINIMIZE)
 
         # Constraints
         self.model.addConstrs(
@@ -278,6 +279,13 @@ class Solver:
                     if a[g, d, t] > 0.5:
                         gnt.broken_barh([(t, 1)], (d - 0.4, 0.8), facecolors=colors(g))
 
+        # Add legend
+        legend_elements = [
+            Patch(facecolor=colors(g), label=f"Group {g+1}") for g in range(num_groups)
+        ]
+        gnt.legend(handles=legend_elements)
+
+        plt.savefig("gurobi.png")  # Save the figure before displaying it
         plt.show()
 
 

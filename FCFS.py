@@ -29,10 +29,12 @@ class FCFS:
         D = len(M)  # Number of tables
         T = len(O[0])  # Number of time periods
 
-        # Sort groups by their waiting time S in descending order
-        zipped_lists = zip(S-U, S, N, P, U, H)
-        sorted_zipped_lists = sorted(zipped_lists, reverse=True, key=lambda x: x[0])
-        _, S, N, P, U, H = [list(t) for t in zip(*sorted_zipped_lists)]
+        # Sort groups by their waiting time S in descending order, keeping track of original indices
+        zipped_lists = zip(range(G), S - U, S, N, P, U, H)
+        sorted_zipped_lists = sorted(zipped_lists, reverse=True, key=lambda x: x[1])
+        original_indices, _, S, N, P, U, H = [
+            list(t) for t in zip(*sorted_zipped_lists)
+        ]
 
         # Initialize a_{gdt} as a 3D array of zeros
         a = np.zeros((G, D, T), dtype=int)
@@ -119,6 +121,21 @@ class FCFS:
             else:
                 waiting_times.append(None)
 
+        # Calculate the penalty of splitting a group across multiple tables
+        # (H[g]-gp.quicksum(b[g, d] for d in range(num_tables)))
+        penalty = 0
+        for g in range(G):
+            tables = []
+            for d in range(D):
+                if any(a[g][d] == 1):
+                    tables.append(d)
+            penalty += H[g] - len(tables)
+
+        # Re-sort waiting times and allocation matrix to original group order
+        original_order_indices = np.argsort(original_indices)
+        waiting_times = [waiting_times[i] for i in original_order_indices]
+        a = a[original_order_indices]
+
         print("Sorted Wait Times (S):", S)
         print("Group Sizes (N):", N)
         print("Meal Durations (P):", P)
@@ -127,9 +144,11 @@ class FCFS:
         for m in a:
             print(m)
         print("Waiting Times:", waiting_times)
-        print("Total Waiting Time:", sum(waiting_times))
+        print("Total Waiting Time:", sum(filter(None, waiting_times)))
+        print("Penalty:", penalty)
+        print("Objective Value:", sum(filter(None, waiting_times)) - alpha * penalty)
         return a
-    
+
     def draw_solution(self, solution):
         a = solution["a"]
         num_groups = len(a)
@@ -156,6 +175,14 @@ class FCFS:
                     if a[g, d, t] > 0.5:
                         gnt.broken_barh([(t, 1)], (d - 0.4, 0.8), facecolors=colors(g))
 
+        # Add legend
+        legend_elements = [
+            plt.Rectangle((0, 0), 1, 1, facecolor=colors(g)) for g in range(num_groups)
+        ]
+        legend_labels = [f"Group {g+1}" for g in range(num_groups)]
+        gnt.legend(legend_elements, legend_labels)
+
+        plt.savefig("FCFS.png")
         plt.show()
 
 
@@ -163,7 +190,6 @@ if __name__ == "__main__":
     testcase = Testcase.from_csv("testcase_data.csv")
     solver = FCFS()
     a = solver.solve(testcase)
-    print(a)
-    
+
     if a is not None:
         solver.draw_solution({"a": a})

@@ -84,7 +84,7 @@ class Testcase:
 
     def dapu(number_people, num_groups, max_duration, max_wait):
         max_seats = 1
-        num_tables = 6
+        num_tables = 10
         Ng = np.random.randint(1, number_people, num_groups)
         Md = np.random.randint(1, max_seats + 1, num_tables)
         Cij = np.zeros((num_tables, num_tables), dtype=int)
@@ -98,10 +98,11 @@ class Testcase:
         Ug = np.random.randint(max_duration, max_wait + 1, num_groups)
         Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
         Hg = np.random.randint(10, 10 + 1, num_groups)
-        Odt = np.random.randint(0, 2, (num_tables, max_duration * num_groups))
-        Odt = np.random.choice(
-            [0, 1], size=(num_tables, max_duration * num_groups), p=[1, 0]
-        )
+        Odt = np.zeros((num_tables, max_duration * num_groups))
+        for i in range(num_tables):
+            num_occ = random.randint(0, max_duration)
+            for j in range(num_occ):
+                Odt[i, j] = 1
         alpha = random.uniform(0, 1)
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Hg, Odt, alpha)
@@ -150,10 +151,12 @@ class Testcase:
         Sg = np.random.randint(0, max_wait / 2 + 1, num_groups)
         Hg = np.random.randint(10, 10 + 1, num_groups)
         Odt = np.random.randint(0, 2, (num_tables, max_duration * num_groups))
-        Odt = np.random.choice(
-            [0, 1], size=(num_tables, max_duration * num_groups), p=[1, 0]
-        )
-        alpha = random.uniform(0, 1)
+        Odt = np.zeros((num_tables, max_duration * num_groups))
+        for i in range(num_tables):
+            num_occ = random.randint(0, max_duration)
+            for j in range(num_occ):
+                Odt[i, j] = 1
+        alpha = 1
 
         return Testcase(Ng, Md, Cij, Pg, Ug, Sg, Hg, Odt, alpha)
 
@@ -211,20 +214,20 @@ if __name__ == "__main__":
     # testcase = Testcase.hantiange(
     #     number_people=6, num_groups=10, max_duration=5, max_wait=30
     # )
-    # testcase = Testcase.dapu(number_people=10, num_groups=6, max_duration=5, max_wait=30)
-    testcase = Testcase.generate_data(
-        number_people=10,
-        num_groups=10,
-        num_tables=10,
-        max_seats=4,
-        max_duration=6,
-        max_wait=12,
-        max_tables=4,
-    )
-    testcase.save_to_csv("testcase_data.csv")
+    # testcase = Testcase.dapu(number_people=5, num_groups=4, max_duration=4, max_wait=12)
+    # testcase = Testcase.generate_data(
+    #     number_people=10,
+    #     num_groups=10,
+    #     num_tables=10,
+    #     max_seats=4,
+    #     max_duration=6,
+    #     max_wait=12,
+    #     max_tables=4,
+    # )
+    # testcase.save_to_csv("testcase_data.csv")
 
     # Load data from CSV and create Testcase object
-    loaded_testcase = Testcase.from_csv("testcase_data.csv")
+    loaded_testcase = Testcase.from_csv("dapu/testcase_1.csv")
     print("Loaded Testcase:")
     print("Ng - Number of customer in group g:", loaded_testcase.Ng)
     print("Md - Number of seats of table d:", loaded_testcase.Md)

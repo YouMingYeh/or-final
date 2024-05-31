@@ -1,0 +1,6 @@
+Number of groups: 4
+Number of people in the groups: [1,2,3,4]
+Meal duration (time periods): [5,5,6,6]
+Maximum waiting time for each group: [12,12,12,12]
+Time waited for each group: [1,2,3,4]
+Tables occupied for each time periods are randomly generated and the same for most instances.
